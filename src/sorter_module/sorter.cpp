@@ -10,7 +10,7 @@
 using namespace SorterModule;
 
 const char *g_configPath = "tape_config.json";
-constexpr int g_sizeOfRun = 512;
+constexpr int g_sizeOfRun = 64;
 
 Sorter::Sorter(const char *fInput, const char *fOutput)
 {
@@ -51,25 +51,59 @@ void Sorter::createInitialRuns(const char *fInput)
             input >> data;
             runData.push_back(data);
         }
-        m_tapes.push_back(std::ofstream("tmp/" + std::to_string(iTempFile) + ".txt"));
+        m_tapeNames.push_back("tmp/" + std::to_string(iTempFile) + ".txt");
         mergeSort(runData, 0, runData.size() - 1);
+        std::ofstream tempTape(m_tapeNames.back());
         for (auto el : runData)
         {
-            m_tapes[iTempFile] << el << "\n";
+            tempTape << el << "\n";
         }
         iTempFile++;
     }
-
-    for (auto& tape : m_tapes)
-    {
-        tape.close();
-    }
-
     input.close();
 }
 
 void Sorter::mergeFiles(const char *fOutput)
 {
+    std::ofstream output(fOutput);
+
+    std::vector<MinHeapNode> nodes;
+    std::vector<std::ifstream> tapes;
+    unsigned int i;
+
+    for (i = 0; i < m_tapeNames.size(); i++)
+    {
+        tapes.push_back(std::ifstream(m_tapeNames[i]));
+        MinHeapNode node;
+        tapes.back() >> node.element;
+        node.index = i;
+        nodes.push_back(node);
+    }
+
+    MinHeap heap(nodes);
+
+    int count = 0;
+    while (count != i)
+    {
+        MinHeapNode root = heap.getMin();
+        output << root.element << "\n";
+
+        tapes[count] >> root.element;
+        if (tapes[count].peek() == EOF)
+        {
+            root.element = INT32_MAX;
+            count++;
+        }
+
+        heap.replaceMin(root);
+    }
+
+    for (auto& tape : tapes)
+    {
+        tape.close();
+    }
+
+    output.close();
 }
 
 void Sorter::merge(std::vector<int>& array, int low, int mid, int high)

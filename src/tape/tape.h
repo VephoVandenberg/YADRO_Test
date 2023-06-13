@@ -13,7 +13,12 @@ namespace TapeModule
     class Tape
     {   
     public:
-        Tape(const char *fPath, Mode mode);
+        Tape(const char *fPath, Mode mode = Mode::Read);
+
+        int read();
+        void write(int data);
+        void moveForward();
+        void moveBack();
 
         inline Mode getMode() const { return m_mode; }
 
@@ -26,6 +31,7 @@ namespace TapeModule
 
     private:
         Mode m_mode;
+        std::string fPath;
         std::fstream m_file;
         unsigned int m_tapePointer = 0;
     };

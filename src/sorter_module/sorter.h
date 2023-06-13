@@ -28,6 +28,6 @@ namespace SorterModule
         void createInitialRuns(const char *fInput);
         void mergeFiles(const char *fOutput);
 
-        std::vector<std::ofstream> m_tapes;
+        std::vector<std::string> m_tapeNames;
     };
 }

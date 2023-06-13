@@ -8,7 +8,6 @@ namespace SorterModule
     {
         int element;
         int index;
-        int iNextEl;
     };
 
     class MinHeap
