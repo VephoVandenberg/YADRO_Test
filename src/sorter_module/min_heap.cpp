@@ -21,19 +21,20 @@ void MinHeap::heapify(int i)
     int r = right(i);
     int iSmallest = i;
 
-    if (i < m_heap.size() && m_heap[l].element < m_heap[i].element)
+    if (l < m_heap.size() && m_heap.at(l).element < m_heap.at(i).element)
     {
         iSmallest = l;
     }
 
-    if (r < m_heap.size() && m_heap[r].element < m_heap[iSmallest].element)
+    if (r < m_heap.size() &&  m_heap.at(r).element < m_heap.at(iSmallest).element)
     {
         iSmallest = r;
     }
 
     if (iSmallest != i)
     {
-        std::swap(m_heap[i], m_heap[iSmallest]);
+        std::swap(m_heap.at(i), m_heap.at(iSmallest));
+        heapify(iSmallest);
     }
 }
 

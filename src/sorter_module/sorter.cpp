@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
+#include <thread>
 
 #include "../tape/tape.h"
 
@@ -75,21 +76,21 @@ void Sorter::mergeFiles(const char *fOutput)
     {
         tapes.push_back(std::ifstream(m_tapeNames[i]));
         MinHeapNode node;
-        tapes.back() >> node.element;
+        tapes[i] >> node.element;
         node.index = i;
         nodes.push_back(node);
     }
 
     MinHeap heap(nodes);
+        std::cout << i << std::endl;
 
     int count = 0;
     while (count != i)
     {
         MinHeapNode root = heap.getMin();
         output << root.element << "\n";
-
-        tapes[count] >> root.element;
-        if (tapes[count].peek() == EOF)
+        std::this_thread::sleep_for(std::chrono::nanoseconds(30));
+        if (!(tapes.at(root.index) >> root.element))
         {
             root.element = INT32_MAX;
             count++;
@@ -97,7 +98,6 @@ void Sorter::mergeFiles(const char *fOutput)
 
         heap.replaceMin(root);
     }
-
     for (auto& tape : tapes)
     {
         tape.close();

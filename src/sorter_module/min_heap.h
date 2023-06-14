@@ -20,7 +20,7 @@ namespace SorterModule
 
         inline int left(int i) const { return 2 * i + 1; }
         inline int right(int i) const { return 2 * i + 2; }
-        inline MinHeapNode getMin() const { return m_heap.front(); }
+        inline MinHeapNode getMin() { return m_heap[0]; }
 
         MinHeap() = default;
         ~MinHeap() = default;
