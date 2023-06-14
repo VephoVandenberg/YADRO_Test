@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <chrono>
 #include <thread>
 
 #include "../tape/tape.h"
@@ -10,12 +9,12 @@
 
 using namespace SorterModule;
 
-const char *g_configPath = "tape_config.json";
+const char *g_configPath = "tape_props.config";
 constexpr int g_sizeOfRun = 32;
 
 Sorter::Sorter(const char *fInput, const char *fOutput)
-    : m_inTape(fInput, TapeModule::Mode::Read)
-    , m_outTape(fOutput, TapeModule::Mode::Write)
+    : m_inTape(fInput, g_configPath, TapeModule::Mode::Read)
+    , m_outTape(fOutput, g_configPath, TapeModule::Mode::Write)
 {
     readConfig();
     externalSort();
@@ -56,7 +55,10 @@ void Sorter::createInitialRuns()
             runData.push_back(data);
         }
         m_tempTapes.push_back(
-            TapeModule::Tape("tmp/" + std::to_string(iTempFile) + ".bin", TapeModule::Mode::Write));
+            TapeModule::Tape(
+                "tmp/" + std::to_string(iTempFile) + ".bin", 
+                g_configPath,
+                TapeModule::Mode::Write));
         mergeSort(runData, 0, runData.size() - 1);
         for (auto el : runData)
         {

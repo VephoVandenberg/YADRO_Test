@@ -13,7 +13,7 @@ namespace TapeModule
     class Tape
     {   
     public:
-        Tape(std::string path, Mode mode = Mode::Read);
+        Tape(std::string path, std::string config, Mode mode = Mode::Read);
         ~Tape();
 
         void read(int& data);
@@ -38,11 +38,18 @@ namespace TapeModule
         Tape& operator=(Tape&&) = default;
 
     private:
+        void readConfig(std::string path);
+
         Mode m_mode;
         std::string m_path;
         std::ifstream m_reader;
         std::ofstream m_writer;
         int m_tapePointer = 0;
         int m_fileLength = 0;
+
+        // Delay in nanoseconds
+        unsigned int m_readAndWriteDelay = 1;
+        unsigned int m_reloadDelay = 1;
+        unsigned int m_moveDelay = 1;
     };
 }
