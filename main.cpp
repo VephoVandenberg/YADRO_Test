@@ -4,8 +4,8 @@
 
 int main(int argc, char **argv)
 {
-    SorterModule::Sorter* reader = new SorterModule::Sorter("input.txt", "output.txt");
-    
+    SorterModule::Sorter* reader = new SorterModule::Sorter("input.bin", "output.bin");
+
     delete reader;
     return 0;
 }

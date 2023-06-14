@@ -11,12 +11,14 @@
 using namespace SorterModule;
 
 const char *g_configPath = "tape_config.json";
-constexpr int g_sizeOfRun = 64;
+constexpr int g_sizeOfRun = 32;
 
 Sorter::Sorter(const char *fInput, const char *fOutput)
+    : m_inTape(fInput, TapeModule::Mode::Read)
+    , m_outTape(fOutput, TapeModule::Mode::Write)
 {
     readConfig();
-    externalSort(fInput, fOutput);
+    externalSort();
 }
 
 void Sorter::readConfig()
@@ -24,16 +26,15 @@ void Sorter::readConfig()
     // Future updates
 }
 
-void Sorter::externalSort(const char *fInput, const char *fOutput)
+void Sorter::externalSort()
 {
-    createInitialRuns(fInput);
-    mergeFiles(fOutput);
+    createInitialRuns();
+    mergeFiles();
 }
 
-void Sorter::createInitialRuns(const char *fInput)
+void Sorter::createInitialRuns()
 {
-    std::ifstream input(fInput);
-    if (!input.is_open()) { return; }
+    if (!m_inTape.isOpen()) { return; }
 
     bool eof = false;
     unsigned int iTempFile = 0;
@@ -42,68 +43,80 @@ void Sorter::createInitialRuns(const char *fInput)
         std::vector<int> runData;
         for (unsigned int i = 0; i < g_sizeOfRun; i++)
         {
-            if (input.peek() == EOF)
+            int data;
+            m_inTape.read(data);
+            if (m_inTape.isEOF())
             {
                 eof = true;
                 break;
             }
-
-            int data;
-            input >> data;
+            m_inTape.moveBackward();
+            m_inTape.moveForward();
+            std::cout << data << std::endl;
             runData.push_back(data);
         }
-        m_tapeNames.push_back("tmp/" + std::to_string(iTempFile) + ".txt");
+        m_tempTapes.push_back(
+            TapeModule::Tape("tmp/" + std::to_string(iTempFile) + ".bin", TapeModule::Mode::Write));
         mergeSort(runData, 0, runData.size() - 1);
-        std::ofstream tempTape(m_tapeNames.back());
         for (auto el : runData)
         {
-            tempTape << el << "\n";
+            m_tempTapes.back().write(el);
+            m_tempTapes.back().moveBackward(); 
+            m_tempTapes.back().moveForward();
         }
         iTempFile++;
     }
-    input.close();
+    std::cout << std::endl << std::endl;
 }
 
-void Sorter::mergeFiles(const char *fOutput)
+void Sorter::mergeFiles()
 {
-    std::ofstream output(fOutput);
-
     std::vector<MinHeapNode> nodes;
     std::vector<std::ifstream> tapes;
     unsigned int i;
 
-    for (i = 0; i < m_tapeNames.size(); i++)
+    for (i = 0; i < m_tempTapes.size(); i++)
     {
-        tapes.push_back(std::ifstream(m_tapeNames[i]));
+        m_tempTapes[i].reload();
+        m_tempTapes[i].toRead();
+
+        if(m_tempTapes[i].getTapeLength() == 0)
+        {
+            break;
+        }
+
         MinHeapNode node;
-        tapes[i] >> node.element;
+        m_tempTapes[i].read(node.element);
+        m_tempTapes[i].moveBackward();
+        m_tempTapes[i].moveForward();
         node.index = i;
         nodes.push_back(node);
     }
 
     MinHeap heap(nodes);
-        std::cout << i << std::endl;
 
     int count = 0;
     while (count != i)
     {
         MinHeapNode root = heap.getMin();
-        output << root.element << "\n";
-        std::this_thread::sleep_for(std::chrono::nanoseconds(30));
-        if (!(tapes.at(root.index) >> root.element))
+
+        std::cout << root.element << std::endl;
+
+        m_outTape.write(root.element);
+        m_outTape.moveBackward();
+        m_outTape.moveForward();
+
+        m_tempTapes.at(root.index).read(root.element);
+        m_tempTapes.at(root.index).moveBackward();
+        m_tempTapes.at(root.index).moveForward();
+        if (m_tempTapes.at(root.index).isEOF())
         {
             root.element = INT32_MAX;
             count++;
         }
-
+    
         heap.replaceMin(root);
     }
-    for (auto& tape : tapes)
-    {
-        tape.close();
-    }
-
-    output.close();
 }
 
 void Sorter::merge(std::vector<int>& array, int low, int mid, int high)
@@ -151,11 +164,12 @@ void Sorter::merge(std::vector<int>& array, int low, int mid, int high)
 
 void Sorter::mergeSort(std::vector<int>& array, int low, int high)
 {
-    if (low == high) { return; }
+    if (low < high) 
+    {
+        int mid = low + (high - low) / 2;
+        mergeSort(array, low, mid);
+        mergeSort(array, mid + 1, high);
 
-    int mid = low + (high - low) / 2;
-    mergeSort(array, low, mid);
-    mergeSort(array, mid + 1, high);
-
-    merge(array, low, mid, high);
+        merge(array, low, mid, high);
+    }
 }

@@ -4,6 +4,8 @@
 #include <vector>
 #include <fstream>
 
+#include "../tape/tape.h"
+
 namespace SorterModule
 {
     class Sorter 
@@ -24,10 +26,12 @@ namespace SorterModule
         void merge(std::vector<int>& array, int low, int mid, int high);
         void mergeSort(std::vector<int>& array, int low, int high);
 
-        void externalSort(const char *fInput, const char *fOutput);
-        void createInitialRuns(const char *fInput);
-        void mergeFiles(const char *fOutput);
+        void externalSort();
+        void createInitialRuns();
+        void mergeFiles();
 
-        std::vector<std::string> m_tapeNames;
+        TapeModule::Tape m_inTape;
+        TapeModule::Tape m_outTape;
+        std::vector<TapeModule::Tape> m_tempTapes;      
     };
 }
