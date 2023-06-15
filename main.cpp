@@ -1,11 +1,9 @@
-#include "src/sorter_module/sorter.h"
+#include "src/app/app.h"
 
-#include <iostream>
+using namespace App;
 
 int main(int argc, char **argv)
 {
-    SorterModule::Sorter* reader = new SorterModule::Sorter("input.bin", "output.bin");
-
-    delete reader;
+    runLoop();
     return 0;
 }

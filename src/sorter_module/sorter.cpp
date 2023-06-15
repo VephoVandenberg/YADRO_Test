@@ -10,25 +10,19 @@
 using namespace SorterModule;
 
 const char *g_configPath = "tape_props.config";
-constexpr int g_sizeOfRun = 32;
+constexpr int g_sizeOfRun = 256;
 
-Sorter::Sorter(const char *fInput, const char *fOutput)
-    : m_inTape(fInput, g_configPath, TapeModule::Mode::Read)
-    , m_outTape(fOutput, g_configPath, TapeModule::Mode::Write)
+bool Sorter::externalSort(const char *fInput, const char *fOutput)
 {
-    readConfig();
-    externalSort();
-}
+    m_inTape = TapeModule::Tape(fInput, g_configPath, TapeModule::Mode::Read);
+    m_outTape = TapeModule::Tape(fOutput, g_configPath, TapeModule::Mode::Write);
 
-void Sorter::readConfig()
-{
-    // Future updates
-}
+    if (!m_inTape.isOpen() || !m_outTape.isOpen()) { return false;}
 
-void Sorter::externalSort()
-{
     createInitialRuns();
     mergeFiles();
+
+    return true;
 }
 
 void Sorter::createInitialRuns()
@@ -51,7 +45,6 @@ void Sorter::createInitialRuns()
             }
             m_inTape.moveBackward();
             m_inTape.moveForward();
-            std::cout << data << std::endl;
             runData.push_back(data);
         }
         m_tempTapes.push_back(
@@ -68,7 +61,6 @@ void Sorter::createInitialRuns()
         }
         iTempFile++;
     }
-    std::cout << std::endl << std::endl;
 }
 
 void Sorter::mergeFiles()
@@ -101,8 +93,6 @@ void Sorter::mergeFiles()
     while (count != i)
     {
         MinHeapNode root = heap.getMin();
-
-        std::cout << root.element << std::endl;
 
         m_outTape.write(root.element);
         m_outTape.moveBackward();

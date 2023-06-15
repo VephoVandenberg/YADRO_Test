@@ -32,6 +32,7 @@ namespace TapeModule
         inline int getTapeLength() const { return m_fileLength; }
         inline int getTapePtr() const { return m_tapePointer; }
 
+        Tape() = default;
         Tape(const Tape&) = default;
         Tape& operator=(const Tape&) = default;
         Tape(Tape&&) = default;

@@ -24,7 +24,6 @@ Tape::Tape(std::string path, std::string config, Mode mode)
             m_reader.open(m_path, std::ios::binary);
             m_reader.seekg(m_tapePointer, std::ios::end);
             m_fileLength = m_reader.tellg();
-            std::cout << m_fileLength <<std::endl;
             m_reader.seekg(m_tapePointer, std::ios::beg);
             break;
         

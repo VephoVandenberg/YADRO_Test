@@ -11,7 +11,7 @@ namespace SorterModule
     class Sorter 
     {
     public:
-        Sorter(const char *fInput, const char *fOutput);
+        bool externalSort(const char *fInput, const char *fOutput);
 
         Sorter() = default;
         ~Sorter() = default;
@@ -22,11 +22,10 @@ namespace SorterModule
         Sorter& operator=(Sorter&&) = delete;
 
     private:
-        void readConfig();
         void merge(std::vector<int>& array, int low, int mid, int high);
         void mergeSort(std::vector<int>& array, int low, int high);
 
-        void externalSort();
+        
         void createInitialRuns();
         void mergeFiles();
 

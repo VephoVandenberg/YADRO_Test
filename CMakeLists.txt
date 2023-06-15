@@ -6,7 +6,8 @@ enable_testing()
 
 file(GLOB_RECURSE SRC_FILES 
     src/sorter_module/*.cpp
-    src/tape/*.cpp)
+    src/tape/*.cpp
+    src/app/*.cpp)
 
 add_executable(TATLINDATASERVICESTEST main.cpp ${SRC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
